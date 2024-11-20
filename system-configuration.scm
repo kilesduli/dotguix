@@ -30,7 +30,9 @@
                 (supplementary-groups '("wheel" "netdev" "audio" "video")))
                %base-user-accounts))
 
- (packages (append (map specification->package (list "gvfs" "git" "emacs-next" "vim" "git" "zsh" "fastfetch"))
+ (packages (append (map (compose specification->package+output
+                                 symbol->string)
+                        '(gvfs git emacs-next vim git zsh fastfetch)))
                    %base-packages))
 
  (services
