@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
-guix pull --channels=../channels.scm
-guix describe --format=channels > channels-lock.scm
+script_dir="$(dirname "$(realpath "$0")")"
+echo "($script_dir)"
+sudo -i guix pull --channels=$script_dir/../channels.scm
+sudo -i guix describe --format=channels > $script_dir/../channels-lock.scm
