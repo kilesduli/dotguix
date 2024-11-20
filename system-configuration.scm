@@ -32,7 +32,7 @@
 
  (packages (append (map (compose specification->package+output
                                  symbol->string)
-                        '(gvfs git emacs-next vim git zsh fastfetch)))
+                        '(gvfs git emacs-next vim git zsh fastfetch))
                    %base-packages))
 
  (services
@@ -46,8 +46,10 @@
                            (guix-service-type
                             config => (guix-configuration
                                        (inherit config)
-                                       (substitute-urls '("https://mirror.sjtu.edu.cn/guix"
-                                                          "https://ci.guix.gnu.org")))))))
+                                       (substitute-urls
+                                        (append '("https://substitutes.nonguix.org"
+                                                  "https://mirror.sjtu.edu.cn/guix")
+                                                %default-substitute-urls)))))))
 
 
 
