@@ -32,7 +32,7 @@
 
  (packages (append (map (compose specification->package+output
                                  symbol->string)
-                        '(gvfs git emacs-next vim git zsh fastfetch))
+                        '(gvfs git emacs-next vim git zsh fastfetch ncurses))
                    %base-packages))
 
  (services
