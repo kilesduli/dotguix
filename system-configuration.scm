@@ -11,87 +11,111 @@
 
 ;; Indicate which modules to import to access the variables
 ;; used in this configuration.
-(use-modules (gnu) (gnu system nss) (guix utils))
+(use-modules (gnu) (gnu system nss) (guix utils) (gnu packages shells))
+(use-modules (gnu packages fonts))
+(use-modules (guix inferior) (guix channels))
 (use-modules (nongnu packages linux)
              (nongnu system linux-initrd))
+(use-modules (srfi srfi-26))
 (use-service-modules cups desktop networking ssh xorg)
 
-(define (package-symbols->packages symbols-list)
+(define (package-symbols->packages symbols)
   (map (compose specification->package
                 symbol->string)
-       symbols-list))
+       symbols))
+
+(define (font-symbols->packages symbols)
+  (map (compose specification->package
+                symbol->string
+                (cut symbol-append 'font- <>))
+       symbols))
 
 (define %global-packages
   (package-symbols->packages
-   '(gvfs git emacs-next vim git zsh fastfetch ncurses)))
+   '(gvfs git emacs-next vim zsh curl git fastfetch ncurses btop eza zoxide)))
+
+(define %global-fonts
+  (font-symbols->packages
+   '(jetbrains-mono
+     fira-code
+     sarasa-gothic dejavu
+     wqy-microhei
+     gnu-unifont hack wqy-zenhei
+     adobe-source-han-sans)))
 
 (operating-system
- (kernel linux)
- (initrd microcode-initrd)
- (firmware (list linux-firmware))
- (locale "en_US.utf8")
- (timezone "Asia/Shanghai")
- (keyboard-layout (keyboard-layout "cn"))
- (host-name "guix-dulis16p")
+  (host-name "guix-dulis16p")
+  (kernel linux)
+  (initrd microcode-initrd)
+  (firmware (list linux-firmware))
+  (locale "zh_CN.UTF-8")
+  (timezone "Asia/Shanghai")
+  (keyboard-layout (keyboard-layout "cn"))
 
- (users (cons* (user-account
-                (name "duli")
-                (comment "duli")
-                (group "users")
-                (home-directory "/home/duli")
-                (supplementary-groups '("wheel" "netdev" "audio" "video")))
-               %base-user-accounts))
+  (users (cons* (user-account
+                 (name "duli")
+                 (group "duli")
+                 (home-directory "/home/duli")
+                 (supplementary-groups '("wheel" "netdev" "audio" "video" "users")))
+                %base-user-accounts))
 
- (packages (append %global-packages
-                   %base-packages))
+  (groups (cons* (user-group
+                  (name "duli")
+                  (id 1000))
+                 %base-groups))
 
- (services
-  (append (list (service gnome-desktop-service-type)
-                (service openssh-service-type
-                         (openssh-configuration
-                          (permit-root-login #t)))
-                (set-xorg-configuration
-                 (xorg-configuration (keyboard-layout keyboard-layout))))
-          (modify-services %desktop-services
-                           (guix-service-type
-                            config => (guix-configuration
-                                       (inherit config)
-                                       (substitute-urls
-                                        (append '("https://substitutes.nonguix.org"
-                                                  "https://mirror.sjtu.edu.cn/guix")
-                                                %default-substitute-urls))
-                                       (authorized-keys
-                                        (append (list (plain-file "non-guix.pub"
-                                                                  "(public-key
+  (packages (append %global-packages
+                    %global-fonts
+                    %base-packages))
+
+  (services
+   (append (list (service gnome-desktop-service-type)
+                 (service openssh-service-type
+                          (openssh-configuration
+                           (permit-root-login #t)))
+                 (set-xorg-configuration
+                  (xorg-configuration
+                   (keyboard-layout keyboard-layout))))
+           (modify-services %desktop-services
+             (guix-service-type
+              config => (guix-configuration
+                         (inherit config)
+                         (substitute-urls
+                          (append '("https://substitutes.nonguix.org"
+                                    "https://mirror.sjtu.edu.cn/guix")
+                                  %default-substitute-urls))
+                         (authorized-keys
+                          (append (list (plain-file "non-guix.pub"
+                                                    "(public-key
  (ecc
   (curve Ed25519)
   (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)
   )
  )"))
-                                                %default-authorized-guix-keys)))))))
+                                  %default-authorized-guix-keys)))))))
 
 
 
- ;; Use the UEFI variant of GRUB with the EFI System
- ;; Partition mounted on /boot/efi.
- (bootloader (bootloader-configuration
-              (bootloader grub-efi-bootloader)
-              (targets '("/boot/efi"))
-              (keyboard-layout keyboard-layout)))
+  ;; Use the UEFI variant of GRUB with the EFI System
+  ;; Partition mounted on /boot/efi.
+  (bootloader (bootloader-configuration
+               (bootloader grub-efi-bootloader)
+               (targets '("/boot/efi"))
+               (keyboard-layout keyboard-layout)))
 
- (file-systems (append
-                (list (file-system
-                       (device (uuid "163f461a-4eb9-4bc7-8ac0-ec1f4d8d51dd"))
-                       (mount-point "/")
-                       (type "btrfs")
-                       (options "subvol=root,compress=zstd:1"))
-                      (file-system
-                       (device (uuid "163f461a-4eb9-4bc7-8ac0-ec1f4d8d51dd"))
-                       (mount-point "/home")
-                       (type "btrfs")
-                       (options "subvol=home,compress=zstd:1"))
-                      (file-system
-                       (device (uuid "1DBD-DE8F" 'fat))
-                       (mount-point "/boot/efi")
-                       (type "vfat")))
-                %base-file-systems)))
+  (file-systems (append
+                 (list (file-system
+                         (device (uuid "163f461a-4eb9-4bc7-8ac0-ec1f4d8d51dd"))
+                         (mount-point "/")
+                         (type "btrfs")
+                         (options "subvol=root,compress=zstd:1"))
+                       (file-system
+                         (device (uuid "163f461a-4eb9-4bc7-8ac0-ec1f4d8d51dd"))
+                         (mount-point "/home")
+                         (type "btrfs")
+                         (options "subvol=home,compress=zstd:1"))
+                       (file-system
+                         (device (uuid "1DBD-DE8F" 'fat))
+                         (mount-point "/boot/efi")
+                         (type "vfat")))
+                 %base-file-systems)))
