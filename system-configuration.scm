@@ -16,7 +16,19 @@
              (nongnu system linux-initrd))
 (use-service-modules cups desktop networking ssh xorg)
 
+(define (package-symbols->packages symbols-list)
+  (map (compose specification->package
+                symbol->string)
+       symbols-list))
+
+(define %global-packages
+  (package-symbols->packages
+   '(gvfs git emacs-next vim git zsh fastfetch ncurses)))
+
 (operating-system
+ (kernel linux)
+ (initrd microcode-initrd)
+ (firmware (list linux-firmware))
  (locale "en_US.utf8")
  (timezone "Asia/Shanghai")
  (keyboard-layout (keyboard-layout "cn"))
@@ -30,9 +42,7 @@
                 (supplementary-groups '("wheel" "netdev" "audio" "video")))
                %base-user-accounts))
 
- (packages (append (map (compose specification->package+output
-                                 symbol->string)
-                        '(gvfs git emacs-next vim git zsh fastfetch ncurses))
+ (packages (append %global-packages
                    %base-packages))
 
  (services
@@ -49,7 +59,16 @@
                                        (substitute-urls
                                         (append '("https://substitutes.nonguix.org"
                                                   "https://mirror.sjtu.edu.cn/guix")
-                                                %default-substitute-urls)))))))
+                                                %default-substitute-urls))
+                                       (authorized-keys
+                                        (append (list (plain-file "non-guix.pub"
+                                                                  "(public-key
+ (ecc
+  (curve Ed25519)
+  (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)
+  )
+ )"))
+                                                %default-authorized-guix-keys)))))))
 
 
 
