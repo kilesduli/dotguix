@@ -17,7 +17,7 @@
 (use-modules (nongnu packages linux)
              (nongnu system linux-initrd))
 (use-modules (srfi srfi-26))
-(use-service-modules cups desktop networking ssh xorg)
+(use-service-modules cups desktop networking ssh xorg nix)
 
 (define (package-symbols->packages symbols)
   (map (compose specification->package
@@ -32,7 +32,7 @@
 
 (define %global-packages
   (package-symbols->packages
-   '(gvfs git emacs-next vim zsh curl git fastfetch ncurses btop eza zoxide)))
+   '(gvfs git emacs-next vim zsh curl git fastfetch ncurses btop eza zoxide flatpak nix)))
 
 (define %global-fonts
   (font-symbols->packages
@@ -69,7 +69,8 @@
                     %base-packages))
 
   (services
-   (append (list (service gnome-desktop-service-type)
+   (append (list (service nix-service-type)
+                 (service gnome-desktop-service-type)
                  (service openssh-service-type
                           (openssh-configuration
                            (permit-root-login #t)))
@@ -92,7 +93,11 @@
   (q #C1FD53E5D4CE971933EC50C9F307AE2171A2D3B52C804642A7A35F84F3A4EA98#)
   )
  )"))
-                                  %default-authorized-guix-keys)))))))
+                                  %default-authorized-guix-keys))))
+             (gdm-service-type
+              config => (gdm-configuration
+                         (gnome-shell-assets
+                          %global-fonts))))))
 
 
 

@@ -1,20 +1,9 @@
 (list (channel
-        (name 'emacs-master)
-        (url "https://codeberg.org/akib/guix-channel-emacs-master")
-        (branch "master")
-        (commit
-          "00a88d7d13c3b4a261a6adcc45058ee0507a0997")
-        (introduction
-          (make-channel-introduction
-            "1ba8c40e21c1c18f70c8ff116f2fbbbb41a5a30a"
-            (openpgp-fingerprint
-              "C954 CA9A BB4B EA43 417B  7151 5535 FCF5 4D88 616B"))))
-      (channel
         (name 'nonguix)
         (url "https://gitlab.com/nonguix/nonguix")
         (branch "master")
         (commit
-          "99574ff94b6fb97794ba720b6fdadf470963dbdc")
+          "368701e26bbdd6bf5cdd720a281fe8806852a4c4")
         (introduction
           (make-channel-introduction
             "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
@@ -25,7 +14,7 @@
         (url "https://git.savannah.gnu.org/git/guix.git")
         (branch "master")
         (commit
-          "1e6d1c32117e9f731e50dcd286927a5fa0d17afc")
+          "9bc10b64b048b64af2ade03c9f818173d9b839be")
         (introduction
           (make-channel-introduction
             "9edb3f66fd807b096b48283debdcddccfea34bad"

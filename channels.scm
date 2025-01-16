@@ -1,13 +1,4 @@
 (cons* (channel
-        (name 'emacs-master)
-        (url "https://codeberg.org/akib/guix-channel-emacs-master")
-        (branch "master")
-        (introduction
-         (make-channel-introduction
-          "1ba8c40e21c1c18f70c8ff116f2fbbbb41a5a30a"
-          (openpgp-fingerprint
-           "C954 CA9A BB4B EA43 417B  7151 5535 FCF5 4D88 616B"))))
-       (channel
         (name 'nonguix)
         (url "https://gitlab.com/nonguix/nonguix")
         (branch "master")
